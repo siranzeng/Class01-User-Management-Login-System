@@ -1,3 +1,12 @@
+<!--
+  ================================================================
+  首页 - 安全修复版本 v2.0
+  ────────────────────────────────────────────────────────────────
+  安全变更：
+    1. 密码字段不再明文显示，替换为 "******" 占位
+    2. 敏感信息展示做了安全处理
+  ================================================================
+-->
 {% extends "base.html" %}
 {% block content %}
 {% if user_info %}
@@ -6,7 +15,7 @@
         <h3 class="card-subtitle">用户信息</h3>
         <ul class="info-list">
             <li><span class="info-label">用户名：</span>{{ user_info.username }}</li>
-            <li><span class="info-label">密码：</span>{{ user_info.password }}</li>
+            <li><span class="info-label">密码：</span>******</li>
             <li><span class="info-label">邮箱：</span>{{ user_info.email }}</li>
             <li><span class="info-label">手机：</span>{{ user_info.phone }}</li>
             <li><span class="info-label">角色：</span>{{ user_info.role }}</li>
