@@ -8,3 +8,7 @@ venv/
 
 # Claude session files (local, not for repo)
 .claude/sessions/
+
+# Database
+*.db
+data/

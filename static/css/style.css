@@ -56,7 +56,7 @@ body {
 
 /* 容器样式 */
 .container {
-    max-width: 600px;
+    max-width: 800px;
     margin: 40px auto;
     padding: 0 16px;
 }
@@ -181,4 +181,80 @@ body {
     padding: 10px 14px;
     margin-bottom: 16px;
     font-size: 14px;
+}
+
+/* 成功消息样式 */
+.success-message {
+    background-color: #f0fff4;
+    color: #27ae60;
+    border: 1px solid #d1fad1;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+/* 搜索功能样式 */
+.search-form {
+    margin-top: 8px;
+}
+
+.search-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+}
+
+.search-btn {
+    width: auto;
+    padding: 10px 20px;
+    white-space: nowrap;
+}
+
+.search-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.search-table th {
+    background-color: #f0f0f5;
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid #ddd;
+    font-weight: 600;
+}
+
+.search-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.search-table tr:hover {
+    background-color: #fafafa;
+}
+
+.no-result {
+    text-align: center;
+    color: #999;
+    padding: 20px 0;
+    font-size: 14px;
+}
+
+/* 注册页页脚 */
+.form-footer {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #666;
+}
+
+.form-footer a {
+    color: #667eea;
+    text-decoration: none;
 }
