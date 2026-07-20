@@ -104,6 +104,4 @@ python app.py
 
 详细报告见 [VULN_REPORT.md](./VULN_REPORT.md)。
 
-## 免责声明
 
-本系统最初为教学演示用途，逐步加入安全修复。
