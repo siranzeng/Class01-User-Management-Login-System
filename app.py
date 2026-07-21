@@ -8,6 +8,8 @@ import secrets
 import time
 import sqlite3
 import os
+import re
+import struct
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
@@ -295,10 +297,38 @@ def search():
     return {"results": [{"id": r[0], "username": r[1], "email": r[2], "phone": r[3]} for r in search_results]}
 
 
-# ---- 路由: 上传头像 ----
+# ---- 校验文件魔数 ----
+def check_image_magic(data):
+    """读取文件头魔数判断是否为真实图片"""
+    if len(data) < 4:
+        return False
+    # JPEG: ff d8 ff
+    if data[0:2] == b"\xff\xd8":
+        return True
+    # PNG: 89 50 4e 47
+    if data[0:4] == b"\x89PNG":
+        return True
+    # GIF: 47 49 46 38 37 61 或 47 49 46 38 39 61
+    if data[0:6] in (b"GIF87a", b"GIF89a"):
+        return True
+    # BMP: 42 4d
+    if data[0:2] == b"BM":
+        return True
+    # WebP: 52 49 46 46 x x x x 57 45 42 50
+    if len(data) >= 12 and data[0:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return True
+    return False
+
+
+# ---- 路由: 上传头像（含5项安全校验）----
+# 安全校验:
+#   1. 文件名路径穿越防护
+#   2. 文件后缀白名单校验
+#   3. MIME 类型校验
+#   4. 文件内容头校验（魔数）
+#   5. 文件重命名防覆盖
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
-    # 需要登录才能访问
     if "username" not in session:
         return redirect("/login")
 
@@ -306,14 +336,46 @@ def upload():
     file_url = None
     filename = None
 
+    ALLOWED_EXT = {"jpg", "jpeg", "png", "gif", "bmp", "webp"}
+    ALLOWED_MIME = {"image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp"}
+
     if request.method == "POST":
         file = request.files.get("file")
-        if file and file.filename:
-            filename = file.filename
-            file.save(os.path.join("static/uploads", filename))
-            file_url = url_for("static", filename=f"uploads/{filename}")
-        else:
+        if not file or not file.filename:
             error = "请选择一个文件"
+            return render_template("upload.html", error=error, file_url=file_url, filename=filename)
+
+        # 校验1: 路径穿越防护 - 过滤 ../ ./ 等路径字符
+        raw_name = file.filename.replace("\\", "/")
+        if ".." in raw_name or raw_name.startswith("/"):
+            error = "文件名不合法"
+            return render_template("upload.html", error=error, file_url=file_url, filename=filename)
+
+        # 校验2: 文件后缀白名单
+        ext = raw_name.rsplit(".", 1)[-1].lower() if "." in raw_name else ""
+        if ext not in ALLOWED_EXT:
+            error = "仅支持图片格式: jpg/jpeg/png/gif/bmp/webp"
+            return render_template("upload.html", error=error, file_url=file_url, filename=filename)
+
+        # 校验3: MIME 类型校验
+        mime = file.content_type
+        if mime not in ALLOWED_MIME:
+            error = "文件类型不合法"
+            return render_template("upload.html", error=error, file_url=file_url, filename=filename)
+
+        # 校验4: 文件内容头校验（读取魔数判断真实类型）
+        file.seek(0)
+        head = file.read(16)
+        file.seek(0)
+        if not check_image_magic(head):
+            error = "文件内容不是有效图片"
+            return render_template("upload.html", error=error, file_url=file_url, filename=filename)
+
+        # 校验5: 重命名防覆盖 - UUID + 时间戳 + 原始后缀
+        saved_name = f"{secrets.token_hex(8)}_{int(time.time())}.{ext}"
+        file.save(os.path.join("static/uploads", saved_name))
+        file_url = url_for("static", filename=f"uploads/{saved_name}")
+        filename = saved_name
 
     return render_template("upload.html", error=error, file_url=file_url, filename=filename)
 

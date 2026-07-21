@@ -1,8 +1,9 @@
-<!-- v2.2: 新增头像上传功能 -->
+<!-- v2.3: 新增5项安全校验（后缀/MIME/魔数/路径/重命名） -->
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
     <h2 class="card-title">上传头像</h2>
+    <p class="card-text" style="font-size:13px;color:#999;">支持格式: jpg/jpeg/png/gif/bmp/webp | 最大 16MB</p>
     {% if error %}
         <div class="error-message">{{ error }}</div>
     {% endif %}
@@ -16,10 +17,10 @@
 
     {% if file_url %}
         <div style="margin-top:20px; text-align:center;">
-            <p style="margin-bottom:10px; color:#666;">上传成功！</p>
+            <p style="margin-bottom:10px; color:#27ae60;">上传成功！</p>
             <img src="{{ file_url }}" style="max-width:200px; border-radius:8px; border:2px solid #eee;">
-            <p style="margin-top:10px; word-break:break-all;">
-                <a href="{{ file_url }}" target="_blank">{{ filename }}</a>
+            <p style="margin-top:10px; word-break:break-all;font-size:12px;color:#999;">
+                {{ filename }}
             </p>
         </div>
     {% endif %}

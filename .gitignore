@@ -12,3 +12,10 @@ venv/
 # Database
 *.db
 data/
+
+# Uploaded files (user content, not source)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Vulnerability reports (regenerated each version)
+VULN_REPORT.md
