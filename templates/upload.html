@@ -1,0 +1,27 @@
+<!-- v2.2: 新增头像上传功能 -->
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2 class="card-title">上传头像</h2>
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/upload" class="login-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file">选择文件</label>
+            <input type="file" id="file" name="file" class="form-input" required>
+        </div>
+        <button type="submit" class="btn btn-primary">上 传</button>
+    </form>
+
+    {% if file_url %}
+        <div style="margin-top:20px; text-align:center;">
+            <p style="margin-bottom:10px; color:#666;">上传成功！</p>
+            <img src="{{ file_url }}" style="max-width:200px; border-radius:8px; border:2px solid #eee;">
+            <p style="margin-top:10px; word-break:break-all;">
+                <a href="{{ file_url }}" target="_blank">{{ filename }}</a>
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

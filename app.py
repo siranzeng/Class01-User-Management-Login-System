@@ -2,7 +2,7 @@
 # 修复: 曾思填
 # 说明: 密码改哈希存储 + CSRF + 防暴力破解
 
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 import time
@@ -11,6 +11,10 @@ import os
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+
+# ---- 初始化上传目录 ----
+os.makedirs("static/uploads", exist_ok=True)
 
 # ---- 数据库初始化 ----
 def init_db():
@@ -289,6 +293,29 @@ def search():
         search_results = c.fetchall()
         conn.close()
     return {"results": [{"id": r[0], "username": r[1], "email": r[2], "phone": r[3]} for r in search_results]}
+
+
+# ---- 路由: 上传头像 ----
+@app.route("/upload", methods=["GET", "POST"])
+def upload():
+    # 需要登录才能访问
+    if "username" not in session:
+        return redirect("/login")
+
+    error = None
+    file_url = None
+    filename = None
+
+    if request.method == "POST":
+        file = request.files.get("file")
+        if file and file.filename:
+            filename = file.filename
+            file.save(os.path.join("static/uploads", filename))
+            file_url = url_for("static", filename=f"uploads/{filename}")
+        else:
+            error = "请选择一个文件"
+
+    return render_template("upload.html", error=error, file_url=file_url, filename=filename)
 
 
 # ---- 路由: 登出 ----

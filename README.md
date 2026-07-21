@@ -11,9 +11,12 @@ Class01-User-Management-Login-System/
 │   ├── base.html           # 基础模板
 │   ├── index.html          # 首页（用户信息 + 搜索）
 │   ├── login.html          # 登录页
-│   └── register.html       # 注册页
-├── static/css/
-│   └── style.css           # 样式文件
+│   ├── register.html       # 注册页
+│   └── upload.html         # 头像上传页
+├── static/
+│   ├── css/
+│   │   └── style.css           # 样式文件
+│   └── uploads/                # 上传文件目录
 ├── data/
 │   └── users.db            # SQLite 数据库（自动生成）
 ├── VULN_REPORT.md          # 漏洞修复报告
@@ -36,6 +39,17 @@ python app.py
 ---
 
 ## 版本历史
+
+### v2.2 — 新增头像上传功能
+
+**新增功能：**
+- 用户头像上传（/upload），支持任意类型文件上传
+- 上传最大限制 16MB，保存原始文件名
+- 首页和导航栏添加上传入口
+
+**修改文件：** app.py, templates/upload.html（新增）, templates/base.html, templates/index.html, README.md
+
+---
 
 ### v2.1 — SQL 注入修复 + 注册搜索功能
 
@@ -98,6 +112,7 @@ python app.py
 
 | 版本 | 修复人 | 修复内容 |
 |------|--------|----------|
+| v2.2 | 曾思填 | 新增头像上传功能 |
 | v2.1 | 曾思填 | SQL注入修复，新增注册/搜索 |
 | v2.0 | 曾思填 | 密码哈希/CSRF/暴力破解防护/密码隐藏/SECRET_KEY加固 |
 | v1.0 | - | 初始版本 |
