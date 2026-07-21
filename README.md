@@ -117,6 +117,4 @@ python app.py
 | v2.0 | 曾思填 | 密码哈希/CSRF/暴力破解防护/密码隐藏/SECRET_KEY加固 |
 | v1.0 | - | 初始版本 |
 
-详细报告见 [VULN_REPORT.md](./VULN_REPORT.md)。
-
 
