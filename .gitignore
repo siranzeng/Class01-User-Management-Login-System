@@ -17,5 +17,6 @@ data/
 static/uploads/*
 !static/uploads/.gitkeep
 
-# Old English report name (superseded by Chinese version tracked in repo)
+# 漏洞修复报告从v2.0起改为中文版 "漏洞修复报告.md" 纳入版本管理，
+# 旧版英文名 VULN_REPORT.md 不再生成，此规则阻止其误入提交
 VULN_REPORT.md
