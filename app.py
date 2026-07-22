@@ -43,6 +43,7 @@ init_db()
 # 原密码: admin=admin123, alice=alice2025
 USERS = {
     "admin": {
+        "id": 1,
         "username": "admin",
         "password": generate_password_hash("admin123"),
         "role": "admin",
@@ -51,6 +52,7 @@ USERS = {
         "balance": 99999
     },
     "alice": {
+        "id": 2,
         "username": "alice",
         "password": generate_password_hash("alice2025"),
         "role": "user",
@@ -264,6 +266,7 @@ def register():
                 c.execute(sql, (username, password, email, phone))
                 conn.commit()
                 USERS[username] = {
+                    "id": max(u["id"] for u in USERS.values()) + 1,
                     "username": username,
                     "password": generate_password_hash(password),
                     "role": "user",
@@ -378,6 +381,97 @@ def upload():
         filename = saved_name
 
     return render_template("upload.html", error=error, file_url=file_url, filename=filename)
+
+
+# ---- 路由: 个人中心（需要登录，仅可查看自己资料，管理员可查看全部）----
+@app.route("/profile")
+def profile():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    current_data = USERS.get(current_user)
+    if not current_data:
+        return redirect("/login")
+
+    user_id = request.args.get("user_id", str(current_data["id"]))
+    error = request.args.get("error")
+    user = None
+
+    if user_id and user_id.isdigit():
+        target_uid = int(user_id)
+
+        # 越权校验: 非管理员只能查看自己的资料
+        if target_uid != current_data["id"] and current_data.get("role") != "admin":
+            error = "无权查看其他用户的资料"
+
+        if not error:
+            conn = sqlite3.connect("data/users.db")
+            c = conn.cursor()
+            c.execute("SELECT id, username, email, phone FROM users WHERE id = ?", (user_id,))
+            row = c.fetchone()
+            conn.close()
+            if row:
+                uid, uname, email, phone = row
+                user_data = USERS.get(uname)
+                if user_data:
+                    user = {
+                        "id": uid,
+                        "username": uname,
+                        "email": email,
+                        "phone": phone,
+                        "balance": user_data.get("balance", 0),
+                        "role": user_data.get("role", "user")
+                    }
+    return render_template("profile.html", user=user, error=error)
+
+
+# ---- 路由: 充值（需登录，仅可给自己充值，管理员可给全部充值，金额校验为正数）----
+@app.route("/recharge", methods=["POST"])
+def recharge():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    current_data = USERS.get(current_user)
+    if not current_data:
+        return redirect("/login")
+
+    user_id = request.form.get("user_id", "")
+    amount = request.form.get("amount", "0")
+
+    error = ""
+
+    if user_id and user_id.isdigit():
+        target_uid = int(user_id)
+
+        # 越权校验: 非管理员只能给自己充值
+        if target_uid != current_data["id"] and current_data.get("role") != "admin":
+            error = "无权操作其他用户的充值"
+
+        # 金额正数校验
+        try:
+            amount_val = float(amount)
+        except ValueError:
+            amount_val = 0
+
+        if amount_val <= 0 and not error:
+            error = "金额必须为正数"
+
+        if not error:
+            conn = sqlite3.connect("data/users.db")
+            c = conn.cursor()
+            c.execute("SELECT username FROM users WHERE id = ?", (user_id,))
+            row = c.fetchone()
+            conn.close()
+            if row:
+                username = row[0]
+                if username in USERS:
+                    USERS[username]["balance"] = USERS[username].get("balance", 0) + amount_val
+        else:
+            return redirect(f"/profile?user_id={user_id}&error={error}")
+
+    return redirect(f"/profile?user_id={user_id}")
 
 
 # ---- 路由: 登出 ----
