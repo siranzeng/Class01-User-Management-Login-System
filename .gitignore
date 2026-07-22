@@ -17,5 +17,5 @@ data/
 static/uploads/*
 !static/uploads/.gitkeep
 
-# Vulnerability reports (regenerated each version)
+# Old English report name (superseded by Chinese version tracked in repo)
 VULN_REPORT.md
