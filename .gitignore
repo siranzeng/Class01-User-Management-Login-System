@@ -17,6 +17,7 @@ data/
 static/uploads/*
 !static/uploads/.gitkeep
 
-# 漏洞修复报告从v2.0起改为中文版 "漏洞修复报告.md" 纳入版本管理，
-# 旧版英文名 VULN_REPORT.md 不再生成，此规则阻止其误入提交
+# 漏洞修复报告从 v2.0 版本开始纳入版本管理，包含逐版本漏洞代码审计、
+# 修复前后对比及 POC 验证记录。旧版英文名 VULN_REPORT.md 不再生成，
+# 此规则仅阻止其意外提交，不影响已纳入版本的中文报告文件
 VULN_REPORT.md

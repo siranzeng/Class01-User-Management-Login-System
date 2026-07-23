@@ -1,7 +1,13 @@
 <!-- v2.0: 密码改成******了 -->
 {% extends "base.html" %}
 {% block content %}
-{% if user_info %}
+{% if page_content %}
+    <div class="card">
+        <h2 class="card-title">{{ page_title }}</h2>
+        <div class="page-content">{{ page_content | safe }}</div>
+        <a href="/" class="btn btn-primary" style="margin-top:10px">返回首页</a>
+    </div>
+{% elif user_info %}
     <div class="card">
         <h2 class="card-title">欢迎回来，{{ user_info.username }}！</h2>
         <h3 class="card-subtitle">用户信息</h3>
@@ -15,6 +21,7 @@
         </ul>
         <a href="/upload" class="btn btn-primary" style="margin-bottom:10px">上传头像</a>
         <a href="/profile?user_id={{ user_info.id }}" class="btn btn-primary" style="margin-bottom:10px">个人中心</a>
+        <a href="/page?name=help" class="btn btn-primary" style="margin-bottom:10px">帮助中心</a>
         <a href="/logout" class="btn btn-primary">退出登录</a>
     </div>
 
@@ -60,6 +67,7 @@
         <h2 class="card-title">请先登录</h2>
         <p class="card-text">您尚未登录，请先登录系统。</p>
         <a href="/login" class="btn btn-primary">前往登录</a>
+        <a href="/page?name=help" class="btn btn-primary" style="margin-left:10px">帮助中心</a>
     </div>
 {% endif %}
 {% endblock %}

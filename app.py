@@ -474,6 +474,41 @@ def recharge():
     return redirect(f"/profile?user_id={user_id}")
 
 
+# ---- 路由: 动态页面加载（已修复LFI文件包含漏洞）----
+# 修复: 对 name 参数做路径校验, 禁止 .. 和 / 等路径穿越字符
+@app.route("/page")
+def page():
+    name = request.args.get("name", "")
+    page_content = None
+    page_title = ""
+    if name:
+        # 修复LFI: 校验文件名, 禁止路径穿越
+        if ".." in name or "/" in name or "\\" in name:
+            page_content = "页面不存在"
+            page_title = "错误"
+        else:
+            file_path = os.path.join("pages", name)
+            if os.path.isfile(file_path):
+                with open(file_path, "r", encoding="utf-8") as f:
+                    page_content = f.read()
+                page_title = name
+            elif os.path.isfile(file_path + ".html"):
+                with open(file_path + ".html", "r", encoding="utf-8") as f:
+                    page_content = f.read()
+                page_title = name + ".html"
+            else:
+                page_content = "页面不存在"
+                page_title = "错误"
+
+    username = session.get("username")
+    user_info = None
+    if username and username in USERS:
+        user_info = USERS[username]
+    csrf_token = generate_csrf_token()
+    return render_template("index.html", user_info=user_info, csrf_token=csrf_token,
+                           search_results=[], keyword="", page_content=page_content, page_title=page_title)
+
+
 # ---- 路由: 登出 ----
 @app.route("/logout")
 def logout():

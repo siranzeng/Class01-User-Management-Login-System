@@ -10,6 +10,7 @@
     <nav class="navbar">
         <div class="navbar-brand">用户管理系统</div>
         <div class="navbar-menu">
+            <a href="/page?name=help" class="navbar-link">帮助中心</a>
             {% if session.get('username') %}
                 <span class="navbar-welcome">欢迎，{{ session.get('username') }}</span>
                 <a href="/upload" class="navbar-link">上传头像</a>
