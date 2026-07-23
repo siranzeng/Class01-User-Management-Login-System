@@ -7,11 +7,14 @@
 ```
 Class01-User-Management-Login-System/
 ├── app.py                  # Flask 主程序
+├── pages/
+│   └── help.html           # 帮助中心页面
 ├── templates/
 │   ├── base.html           # 基础模板
-│   ├── index.html          # 首页（用户信息 + 搜索）
+│   ├── index.html          # 首页（用户信息 + 搜索 + 动态页面）
 │   ├── login.html          # 登录页
 │   ├── register.html       # 注册页
+│   ├── profile.html        # 个人中心页
 │   └── upload.html         # 头像上传页
 ├── static/
 │   ├── css/
@@ -19,6 +22,7 @@ Class01-User-Management-Login-System/
 │   └── uploads/                # 上传文件目录
 ├── data/
 │   └── users.db            # SQLite 数据库（自动生成）
+├── 漏洞修复报告.md             # 漏洞审计修复报告（v2.0起）
 └── README.md               # 本文件
 ```
 
