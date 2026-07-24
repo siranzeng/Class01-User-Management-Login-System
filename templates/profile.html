@@ -7,6 +7,11 @@
             {{ error }}
         </div>
     {% endif %}
+    {% if success %}
+        <div class="alert alert-success" style="color:green;margin-bottom:15px;padding:10px;background:#f0fff0;border:1px solid #cfc;border-radius:4px;">
+            {{ success }}
+        </div>
+    {% endif %}
     {% if user %}
         <h3 class="card-subtitle">用户资料</h3>
         <ul class="info-list">
@@ -26,6 +31,25 @@
                 <input type="text" name="amount" id="amount" class="form-input" placeholder="请输入金额（正数）" required>
             </div>
             <button type="submit" class="btn btn-primary">充值</button>
+        </form>
+
+        <h3 class="card-subtitle">修改密码</h3>
+        <form method="post" action="/change-password" class="change-password-form">
+            <input type="hidden" name="username" value="{{ user.username }}">
+            <div class="form-group">
+                <label for="old_password" class="form-label">原密码：</label>
+                <input type="password" name="old_password" id="old_password" class="form-input" placeholder="请输入原密码" required>
+            </div>
+            <div class="form-group">
+                <label for="new_password" class="form-label">新密码：</label>
+                <input type="password" name="new_password" id="new_password" class="form-input" placeholder="请输入新密码" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password" class="form-label">确认密码：</label>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-input" placeholder="请再次输入新密码" required>
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="btn btn-primary">修改密码</button>
         </form>
     {% else %}
         <p class="no-result">未找到该用户</p>

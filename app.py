@@ -396,6 +396,7 @@ def profile():
 
     user_id = request.args.get("user_id", str(current_data["id"]))
     error = request.args.get("error")
+    success = request.args.get("success")
     user = None
 
     if user_id and user_id.isdigit():
@@ -423,7 +424,8 @@ def profile():
                         "balance": user_data.get("balance", 0),
                         "role": user_data.get("role", "user")
                     }
-    return render_template("profile.html", user=user, error=error)
+    csrf_token = generate_csrf_token()
+    return render_template("profile.html", user=user, error=error, success=success, csrf_token=csrf_token)
 
 
 # ---- 路由: 充值（需登录，仅可给自己充值，管理员可给全部充值，金额校验为正数）----
@@ -507,6 +509,45 @@ def page():
     csrf_token = generate_csrf_token()
     return render_template("index.html", user_info=user_info, csrf_token=csrf_token,
                            search_results=[], keyword="", page_content=page_content, page_title=page_title)
+
+
+# ---- 路由: 修改密码（已修复CSRF+越权漏洞）----
+# 修复: 增加CSRF Token校验, 增加原密码验证, 仅允许修改当前登录用户密码
+@app.route("/change-password", methods=["POST"])
+def change_password():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    username = request.form.get("username", "")
+    new_password = request.form.get("new_password", "")
+    user_data = USERS.get(username)
+    uid = user_data.get("id", "") if user_data else ""
+
+    # CSRF Token 校验
+    if not check_csrf_token():
+        return redirect(f"/profile?user_id={uid}&error=Token验证失败，请刷新页面重试")
+
+    # 越权校验: 只能修改自己的密码
+    if username != current_user:
+        return redirect(f"/profile?user_id={uid}&error=无权修改其他用户的密码")
+
+    # 原密码验证
+    old_password = request.form.get("old_password", "")
+    if not user_data or not check_password_hash(user_data["password"], old_password):
+        return redirect(f"/profile?user_id={uid}&error=原密码错误")
+
+    if new_password:
+        USERS[username]["password"] = generate_password_hash(new_password)
+        # 同时更新 SQLite 数据库
+        conn = sqlite3.connect("data/users.db")
+        c = conn.cursor()
+        c.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+        conn.commit()
+        conn.close()
+        return redirect(f"/profile?user_id={uid}&success=密码修改成功")
+
+    return redirect(f"/profile?user_id={uid}&error=密码不能为空")
 
 
 # ---- 路由: 登出 ----
