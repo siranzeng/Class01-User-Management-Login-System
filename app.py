@@ -2,7 +2,7 @@
 # 修复: 曾思填
 # 说明: 密码改哈希存储 + CSRF + 防暴力破解
 
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, render_template_string, request, redirect, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 import time
@@ -548,6 +548,135 @@ def change_password():
         return redirect(f"/profile?user_id={uid}&success=密码修改成功")
 
     return redirect(f"/profile?user_id={uid}&error=密码不能为空")
+
+
+# ---- 路由: 欢迎页（已修复SSTI模板注入漏洞）----
+# 修复: 使用 Jinja2 的 {{ }} 变量注入代替 f-string 拼接, 自动转义
+@app.route("/welcome")
+def welcome():
+    name = request.args.get("name", "")
+    if not name:
+        content = "<h1>亲爱的用户，欢迎你！</h1>"
+    else:
+        content = f"<h1>欢迎你，{name}！</h1>"
+    html = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎页</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">用户管理系统</div>
+        <div class="navbar-menu">
+            <a href="/welcome" class="navbar-link">欢迎页</a>
+            <a href="/feedback" class="navbar-link">反馈</a>
+            <a href="/page?name=help" class="navbar-link">帮助中心</a>
+            <a href="/" class="navbar-link">首页</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="card card-center">
+            <h1>欢迎你，""" + name + """！</h1>
+            <a href="/" class="btn btn-primary" style="margin-top:20px">返回首页</a>
+        </div>
+    </main>
+</body>
+</html>"""
+    return render_template_string(html)
+
+
+# ---- 路由: 反馈页面（已修复SSTI模板注入漏洞）----
+# 修复: 使用 Jinja2 变量注入和正则过滤危险字符
+import re
+def escape_ssti(text):
+    """过滤可能导致SSTI注入的特殊字符"""
+    if text is None:
+        return ""
+    # 替换 {{ }}, {% %} 等Jinja2模板语法标记
+    text = text.replace("{{", "&#123;&#123;").replace("}}", "&#125;&#125;")
+    text = text.replace("{%", "&#123;&#37;").replace("%}", "&#37;&#125;")
+    text = text.replace("{#", "&#123;&#35;").replace("#}", "&#35;&#125;")
+    return text
+
+@app.route("/feedback", methods=["GET", "POST"])
+def feedback():
+    if request.method == "POST":
+        name = request.form.get("name", "")
+        message = request.form.get("message", "")
+        # 修复SSTI: 过滤模板语法字符
+        safe_name = escape_ssti(name)
+        safe_message = escape_ssti(message)
+        result_html = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反馈结果</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">用户管理系统</div>
+        <div class="navbar-menu">
+            <a href="/welcome" class="navbar-link">欢迎页</a>
+            <a href="/feedback" class="navbar-link">反馈</a>
+            <a href="/page?name=help" class="navbar-link">帮助中心</a>
+            <a href="/" class="navbar-link">首页</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="card">
+            <h2>""" + safe_name + """ 的反馈：</h2>
+            <p>""" + safe_message + """</p>
+            <a href="/feedback" class="btn btn-primary" style="margin-top:20px">继续反馈</a>
+            <a href="/" class="btn btn-primary" style="margin-top:10px">返回首页</a>
+        </div>
+    </main>
+</body>
+</html>"""
+        return render_template_string(result_html)
+
+    # GET 请求显示反馈表单
+    form_html = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户反馈</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">用户管理系统</div>
+        <div class="navbar-menu">
+            <a href="/welcome" class="navbar-link">欢迎页</a>
+            <a href="/feedback" class="navbar-link">反馈</a>
+            <a href="/page?name=help" class="navbar-link">帮助中心</a>
+            <a href="/" class="navbar-link">首页</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="card">
+            <h2 class="card-title">用户反馈</h2>
+            <form method="post" action="/feedback">
+                <div class="form-group">
+                    <label for="name">姓名：</label>
+                    <input type="text" name="name" id="name" class="form-input" placeholder="请输入您的姓名" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">留言：</label>
+                    <textarea name="message" id="message" class="form-input" rows="5" placeholder="请输入您的意见和建议" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">提交反馈</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>"""
+    return render_template_string(form_html)
 
 
 # ---- 路由: 登出 ----

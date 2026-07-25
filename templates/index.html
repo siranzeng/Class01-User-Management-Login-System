@@ -66,8 +66,10 @@
     <div class="card card-center">
         <h2 class="card-title">请先登录</h2>
         <p class="card-text">您尚未登录，请先登录系统。</p>
-        <a href="/login" class="btn btn-primary">前往登录</a>
-        <a href="/page?name=help" class="btn btn-primary" style="margin-left:10px">帮助中心</a>
+        <div class="btn-group-center">
+            <a href="/login" class="btn btn-primary btn-inline">前往登录</a>
+            <a href="/page?name=help" class="btn btn-primary btn-inline">帮助中心</a>
+        </div>
     </div>
 {% endif %}
 {% endblock %}

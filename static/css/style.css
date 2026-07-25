@@ -258,3 +258,17 @@ body {
     color: #667eea;
     text-decoration: none;
 }
+
+/* 居中按钮组（并排显示） */
+.btn-group-center {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.btn-inline {
+    width: auto;
+    display: inline-block;
+    min-width: 120px;
+}
