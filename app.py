@@ -557,11 +557,10 @@ def change_password():
 @app.route("/welcome")
 def welcome():
     name = request.args.get("name", "")
-    safe_name = escape_ssti(name) if name else ""
     if not name:
-        content = "<h1>亲爱的用户，欢迎你！</h1>"
+        safe_name = "亲爱的用户"
     else:
-        content = f"<h1>欢迎你，{name}！</h1>"
+        safe_name = escape_ssti(name)
     html = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
