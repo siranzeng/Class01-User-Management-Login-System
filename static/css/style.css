@@ -272,3 +272,18 @@ body {
     display: inline-block;
     min-width: 120px;
 }
+
+/* 控制台输出样式（Ping测试） */
+.console-output {
+    background-color: #1e1e1e;
+    color: #00ff00;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    padding: 16px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;
+    line-height: 1.6;
+}

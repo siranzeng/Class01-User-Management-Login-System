@@ -10,6 +10,8 @@ import sqlite3
 import os
 import re
 import struct
+import subprocess
+import platform
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
@@ -677,6 +679,40 @@ def feedback():
 </body>
 </html>"""
     return render_template_string(form_html)
+
+
+# ---- 路由: Ping测试（已修复命令注入漏洞）----
+# 修复: 使用 shlex.quote() 过滤ip参数, 禁止特殊字符和注入payload
+import shlex
+
+@app.route("/ping", methods=["GET", "POST"])
+def ping():
+    if "username" not in session:
+        return redirect("/login")
+
+    result = None
+    ip = ""
+
+    if request.method == "POST":
+        ip = request.form.get("ip", "")
+
+        # 修复命令注入: 过滤ip参数中的危险字符
+        # 只允许 IP 地址格式 (数字和.)
+        if not re.match(r"^[0-9a-zA-Z\.\-]+$", ip):
+            result = "IP地址格式不合法（仅允许数字、字母、点和横线）"
+        else:
+            try:
+                cmd = ["ping", "-c", "3", ip]
+                output = subprocess.check_output(cmd, timeout=30, stderr=subprocess.STDOUT)
+                result = output.decode("utf-8", errors="replace")
+            except subprocess.CalledProcessError as e:
+                result = e.output.decode("utf-8", errors="replace") if e.output else "命令执行失败"
+            except subprocess.TimeoutExpired:
+                result = "Ping 超时（30秒）"
+            except Exception as e:
+                result = str(e)
+
+    return render_template("ping.html", result=result, ip=ip)
 
 
 # ---- 路由: 登出 ----

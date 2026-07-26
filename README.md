@@ -15,6 +15,7 @@ Class01-User-Management-Login-System/
 │   ├── login.html          # 登录页
 │   ├── register.html       # 注册页
 │   ├── profile.html        # 个人中心页
+│   ├── ping.html           # Ping 网络诊断页
 │   └── upload.html         # 头像上传页
 ├── static/
 │   ├── css/
@@ -43,7 +44,24 @@ python app.py
 
 ## 版本历史
 
-### v2.7 — 欢迎页/反馈功能 + 模板注入漏洞(SSTI)修复
+### v2.8 — Ping 网络诊断功能 + 命令注入漏洞修复
+
+**新增功能：**
+- Ping 网络诊断（/ping），支持对 IP 地址或域名进行网络连通性测试
+- 控制台风格输出，黑色背景绿色文字
+- 导航栏和首页添加「Ping测试」入口链接
+
+**修复漏洞：**
+
+| 漏洞 | 描述 | 修复方式 |
+|------|------|----------|
+| 命令注入 | shell=True + f-string 拼接命令，`;id` 可执行任意系统命令 | 改用参数列表方式调用 subprocess.check_output()，用正则校验 IP/域名格式 |
+
+**修改文件：** app.py, templates/ping.html（新增）, templates/base.html, templates/index.html, static/css/style.css, README.md
+
+---
+
+### v2.7 — 欢迎页/反馈功能 + 模板注入漏洞(SSTI)修复 + 界面美化
 **新增功能：**
 - 欢迎页（/welcome），通过 name 参数展示个性化欢迎语
 - 反馈页面（/feedback），支持用户提交反馈留言
@@ -202,6 +220,7 @@ python app.py
 
 | 版本 | 修复人 | 修复内容 |
 |------|--------|----------|
+| v2.8 | 曾思填 | Ping网络诊断 + 命令注入漏洞修复 |
 | v2.7 | 曾思填 | 欢迎页/反馈 + 模板注入漏洞(SSTI)修复 + 界面美化 |
 | v2.6 | 曾思填 | 密码修改 + CSRF跨站请求伪造漏洞修复 |
 | v2.5 | 曾思填 | 动态页面加载 + 文件包含漏洞(LFI/RFI)修复 |
