@@ -557,6 +557,7 @@ def change_password():
 @app.route("/welcome")
 def welcome():
     name = request.args.get("name", "")
+    safe_name = escape_ssti(name) if name else ""
     if not name:
         content = "<h1>亲爱的用户，欢迎你！</h1>"
     else:
@@ -581,7 +582,7 @@ def welcome():
     </nav>
     <main class="container">
         <div class="card card-center">
-            <h1>欢迎你，""" + name + """！</h1>
+            <h1>欢迎你，""" + safe_name + """！</h1>
             <a href="/" class="btn btn-primary" style="margin-top:20px">返回首页</a>
         </div>
     </main>
