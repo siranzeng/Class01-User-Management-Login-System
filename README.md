@@ -34,8 +34,6 @@ pip install flask werkzeug
 python app.py
 ```
 
-访问 http://localhost:5000
-
 **默认账号：**
 - admin / admin123（管理员）
 - alice / alice2025（普通用户）
