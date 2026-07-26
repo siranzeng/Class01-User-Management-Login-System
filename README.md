@@ -21,8 +21,8 @@ Class01-User-Management-Login-System/
 │   │   └── style.css           # 样式文件
 │   └── uploads/                # 上传文件目录
 ├── data/
-│   └── users.db            # SQLite 数据库（自动生成）
-├── 漏洞修复报告.md             # 漏洞审计修复报告（v2.0起）
+│   └── users.db            # SQLite 数据库
+├── 漏洞修复报告.md             # 漏洞审计修复报告
 └── README.md               # 本文件
 ```
 
@@ -43,16 +43,11 @@ python app.py
 
 ## 版本历史
 
-### v2.7 — 欢迎页/反馈功能 + 模板注入漏洞(SSTI)修复 + 界面美化
-
+### v2.7 — 欢迎页/反馈功能 + 模板注入漏洞(SSTI)修复
 **新增功能：**
 - 欢迎页（/welcome），通过 name 参数展示个性化欢迎语
 - 反馈页面（/feedback），支持用户提交反馈留言
 - 导航栏新增「欢迎页」「反馈」入口链接
-
-**界面美化：**
-- 首页未登录状态下"前往登录"和"帮助中心"按钮改为并排显示，对齐更整齐
-- 新增 .btn-group-center 和 .btn-inline 样式
 
 **修复漏洞：**
 
